@@ -97,8 +97,8 @@ REST API untuk manajemen task dan project, dibangun dengan **Node.js + Express +
 
 **1. Clone repository**
 ```bash
-git clone <url-repository>
-cd excited-kepler
+git clone https://github.com/syahrul-awaludin/UTS-WAD-Syahrul-Awaludin.git
+cd UTS-WAD-Syahrul-Awaludin
 ```
 
 **2. Install dependencies**
@@ -127,6 +127,8 @@ npx prisma generate
 ```bash
 npm run db:seed
 ```
+
+> Perintah ini akan **menghapus semua data lama**, mereset auto-increment, lalu mengisi ulang database dengan data testing siap pakai (2 user, 5 project, 9 task).
 
 ---
 
@@ -170,12 +172,40 @@ Setelah server berjalan:
 - **Swagger Docs:** `http://localhost:3000/api/docs`
 - **Health Check:** `http://localhost:3000/health`
 
-### Akun Seed (Siap Pakai)
+### Data Seed (Siap Pakai)
 
-| Nama | Email | Password |
-|------|-------|----------|
-| Budi Santoso | `budi@example.com` | `password123` |
-| Siti Rahayu | `siti@example.com` | `password123` |
+Setelah menjalankan `npm run db:seed`, database akan berisi:
+
+**👥 Users**
+
+| ID | Nama | Email | Password |
+|----|------|-------|----------|
+| 1 | Siti Rahayu | `siti@example.com` | `password123` |
+| 2 | Budi Santoso | `budi@example.com` | `password123` |
+
+**📁 Projects**
+
+| ID | Nama | Status | Owner |
+|----|------|--------|-------|
+| 1 | Proyek Akhir WAD | `ACTIVE` | Budi |
+| 2 | Aplikasi Mobile Kasir | `ACTIVE` | Siti |
+| 3 | Riset Machine Learning | `COMPLETED` | Budi |
+| 4 | Dashboard Internal HRD | `COMPLETED` | Siti |
+| 5 | Website Portofolio Lama | `ARCHIVED` | Budi |
+
+**✅ Tasks**
+
+| # | Judul | Status | Priority | User | Project |
+|---|-------|--------|----------|------|---------|
+| 1 | Setup Express server & folder structure | `DONE` | HIGH | Budi | Proyek Akhir WAD |
+| 2 | Setup Prisma ORM & koneksi database | `DONE` | HIGH | Budi | Proyek Akhir WAD |
+| 3 | Implementasi JWT Authentication | `IN_PROGRESS` | HIGH | Budi | Proyek Akhir WAD |
+| 4 | Dokumentasi Swagger API | `TODO` | MEDIUM | Budi | Proyek Akhir WAD |
+| 5 | Review materi Prisma Relations | `TODO` | LOW | Budi | *(personal)* |
+| 6 | Desain UI wireframe aplikasi kasir | `DONE` | HIGH | Siti | Aplikasi Mobile Kasir |
+| 7 | Setup React Native & navigasi | `IN_PROGRESS` | HIGH | Siti | Aplikasi Mobile Kasir |
+| 8 | Integrasi REST API ke mobile app | `TODO` | MEDIUM | Siti | Aplikasi Mobile Kasir |
+| 9 | Meeting presentasi progress sprint | `TODO` | MEDIUM | Siti | *(personal)* |
 
 ---
 
