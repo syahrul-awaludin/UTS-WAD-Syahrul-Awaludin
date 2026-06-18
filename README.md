@@ -52,27 +52,61 @@ REST API untuk manajemen task dan project, dibangun dengan **Node.js + Express +
 ## 🗄 ERD Database
 
 ```
-┌─────────────┐         ┌──────────────┐         ┌─────────────────┐
-│    users    │         │    tasks     │         │    projects     │
-├─────────────┤         ├──────────────┤         ├─────────────────┤
-│ id (PK)     │──┐  ┌──│ id (PK)      │    ┌───│ id (PK)         │
-│ name        │  │  │  │ title        │    │   │ name            │
-│ email       │  │  │  │ description  │    │   │ description     │
-│ password    │  │  │  │ status       │    │   │ status          │
-│ createdAt   │  │  │  │ priority     │    │   │ ownerId (FK)────┘
-│ updatedAt   │  │  │  │ dueDate      │    │   │ createdAt       │
-└─────────────┘  │  │  │ createdAt    │    │   │ updatedAt       │
-                 │  │  │ updatedAt    │    │   └─────────────────┘
-┌──────────────┐ │  │  │ userId (FK)──┘    │
-│refresh_tokens│ │  │  │ projectId (FK)────┘
-├──────────────┤ │  │  └──────────────┘
-│ id (PK)      │ │  │
-│ token        │ │  └──── userId
-│ userId (FK)──┘ │
-│ expiresAt    │ └──────── userId / ownerId
-│ isRevoked    │
-│ createdAt    │
-└──────────────┘
+┌──────────────────┐          ┌────────────────────────┐
+│      users       │          │     refresh_tokens      │
+├──────────────────┤          ├────────────────────────┤
+│ id (PK)          │◀──1:N────│ id (PK)                │
+│ name             │          │ token (UNIQUE)          │
+│ email (UNIQUE)   │          │ userId (FK)             │
+│ password         │          │ expiresAt               │
+│ createdAt        │          │ isRevoked               │
+│ updatedAt        │          │ createdAt               │
+└────────┬─────────┘          └────────────────────────┘
+         │ 1:N (ownerId)
+         ▼
+┌──────────────────┐
+│     projects     │
+├──────────────────┤
+│ id (PK)          │
+│ name             │
+│ description      │
+│ status           │
+│ ownerId (FK)     │
+│ createdAt        │
+│ updatedAt        │
+└────────┬─────────┘
+         │ 1:N (projectId, nullable)
+         ▼
+┌──────────────────┐
+│      tasks       │
+├──────────────────┤
+│ id (PK)          │
+│ title            │
+│ description      │
+│ status           │
+│ priority         │
+│ dueDate          │
+│ createdAt        │
+│ updatedAt        │
+│ userId (FK) ─────┼──────▶ users.id (1:N)
+│ projectId (FK) ──┼──────▶ projects.id (1:N, nullable)
+└──────────────────┘
+```
+
+### Relasi Antar Tabel
+
+| Relasi | Tipe | Keterangan |
+|--------|------|------------|
+| `users` → `tasks` | **One-to-Many (1:N)** | Satu user bisa punya banyak task. `userId` wajib diisi. Jika user dihapus → task ikut terhapus (`CASCADE`) |
+| `users` → `projects` | **One-to-Many (1:N)** | Satu user bisa punya banyak project. `ownerId` wajib diisi. Jika user dihapus → project ikut terhapus (`CASCADE`) |
+| `users` → `refresh_tokens` | **One-to-Many (1:N)** | Satu user bisa punya banyak refresh token (multi-device login). Jika user dihapus → token ikut terhapus (`CASCADE`) |
+| `projects` → `tasks` | **One-to-Many (1:N)** | Satu project bisa punya banyak task. `projectId` bersifat opsional (nullable). Jika project dihapus → `projectId` di task menjadi `NULL` (`SET NULL`) |
+
+```
+users    ──1:N──▶  tasks           (tasks.userId, wajib)
+users    ──1:N──▶  projects        (projects.ownerId, wajib)
+users    ──1:N──▶  refresh_tokens  (refresh_tokens.userId, wajib)
+projects ──1:N──▶  tasks           (tasks.projectId, opsional/nullable)
 ```
 
 ### Enum
