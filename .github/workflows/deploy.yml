@@ -1,0 +1,30 @@
+name: Deploy Backend to VPS
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            source ~/.nvm/nvm.sh
+            cd ~/wad-uas/backend
+            git pull origin master
+            npm install
+            npx prisma generate
+            npx prisma db push --accept-data-loss
+            pm2 restart wad-uas-be
