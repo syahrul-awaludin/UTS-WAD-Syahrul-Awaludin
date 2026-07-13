@@ -75,7 +75,13 @@ const replaceProject = async (id, body, user) => {
   const project = await projectRepo.update(id, body);
   
   try { 
-    getIo().to(`user:${project.ownerId}`).to('global_admin').emit('project:updated', { project, senderId: user.userId }); 
+    let emitObj = getIo().to(`user:${project.ownerId}`).to('global_admin');
+    if (project.members) {
+      project.members.forEach(m => {
+        emitObj = emitObj.to(`user:${m.id}`);
+      });
+    }
+    emitObj.emit('project:updated', { project, senderId: user.userId }); 
   } catch(e) { console.error('Socket error:', e); }
   
   return project;
@@ -91,7 +97,13 @@ const updateProject = async (id, body, user) => {
   const project = await projectRepo.update(id, body);
   
   try { 
-    getIo().to(`user:${project.ownerId}`).to('global_admin').emit('project:updated', { project, senderId: user.userId }); 
+    let emitObj = getIo().to(`user:${project.ownerId}`).to('global_admin');
+    if (project.members) {
+      project.members.forEach(m => {
+        emitObj = emitObj.to(`user:${m.id}`);
+      });
+    }
+    emitObj.emit('project:updated', { project, senderId: user.userId }); 
   } catch(e) { console.error('Socket error:', e); }
   
   return project;
@@ -110,7 +122,13 @@ const deleteProject = async (id, user) => {
   }
   
   try { 
-    getIo().to(`user:${existing.ownerId}`).to('global_admin').emit('project:deleted', { projectId: id, senderId: user.userId }); 
+    let emitObj = getIo().to(`user:${existing.ownerId}`).to('global_admin');
+    if (existing.members) {
+      existing.members.forEach(m => {
+        emitObj = emitObj.to(`user:${m.id}`);
+      });
+    }
+    emitObj.emit('project:deleted', { projectId: id, senderId: user.userId }); 
   } catch(e) { console.error('Socket error:', e); }
   
   return true;
