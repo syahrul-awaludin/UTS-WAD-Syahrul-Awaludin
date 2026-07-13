@@ -12,7 +12,7 @@ const createTaskSchema = Joi.object({
       'string.max': 'title maksimal 200 karakter.',
       'any.required': 'title wajib diisi.',
     }),
-  description: Joi.string().trim().max(1000).optional().allow(''),
+  description: Joi.string().trim().max(1000).optional().allow('', null),
   status: Joi.string().valid(...VALID_STATUS).default('TODO')
     .messages({ 'any.only': `status harus salah satu dari: ${VALID_STATUS.join(', ')}.` }),
   priority: Joi.string().valid(...VALID_PRIORITY).default('MEDIUM')
@@ -24,7 +24,7 @@ const createTaskSchema = Joi.object({
 
 const replaceTaskSchema = Joi.object({
   title: Joi.string().trim().min(1).max(200).required(),
-  description: Joi.string().trim().max(1000).optional().allow(''),
+  description: Joi.string().trim().max(1000).optional().allow('', null),
   status: Joi.string().valid(...VALID_STATUS).required(),
   priority: Joi.string().valid(...VALID_PRIORITY).required(),
   dueDate: Joi.date().iso().optional().allow(null),
@@ -33,7 +33,7 @@ const replaceTaskSchema = Joi.object({
 
 const updateTaskSchema = Joi.object({
   title: Joi.string().trim().min(1).max(200),
-  description: Joi.string().trim().max(1000).allow(''),
+  description: Joi.string().trim().max(1000).allow('', null),
   status: Joi.string().valid(...VALID_STATUS),
   priority: Joi.string().valid(...VALID_PRIORITY),
   dueDate: Joi.date().iso().allow(null),
