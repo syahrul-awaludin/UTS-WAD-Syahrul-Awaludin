@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "id": 7,
+      "name": "Project API test",
+      "description": "test project API",
+      "status": "ACTIVE",
+      "ownerId": 3,
+      "createdAt": "2026-07-13T08:47:57.838Z",
+      "updatedAt": "2026-07-13T08:47:57.838Z",
+      "owner": {
+        "id": 3,
+        "name": "Testing QA",
+        "email": "qa@example.com"
+      },
+      "members": [],
+      "_count": {
+        "tasks": 0
+      }
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "limit": 10,
+    "offset": 0,
+    "hasNext": false,
+    "hasPrev": false,
+    "nextOffset": null,
+    "prevOffset": null
+  }
+}

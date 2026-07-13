@@ -1,0 +1,24 @@
+{
+  "data": {
+    "id": 10,
+    "title": "testing API",
+    "description": "uji coba API",
+    "status": "TODO",
+    "priority": "MEDIUM",
+    "dueDate": "2026-07-31T00:00:00.000Z",
+    "createdAt": "2026-07-13T08:32:15.333Z",
+    "updatedAt": "2026-07-13T08:32:15.333Z",
+    "userId": 3,
+    "projectId": 1,
+    "user": {
+      "id": 3,
+      "name": "Testing QA",
+      "email": "qa@example.com"
+    },
+    "project": {
+      "id": 1,
+      "name": "Website Portofolio Lama",
+      "status": "ARCHIVED"
+    }
+}
+}

@@ -1,0 +1,10 @@
+{
+  "message": "Registrasi berhasil.",
+  "data": {
+    "id": 3,
+    "name": "Testing QA",
+    "email": "qa@example.com",
+    "createdAt": "2026-07-13T08:14:49.542Z",
+    "role": "USER"
+  }
+}

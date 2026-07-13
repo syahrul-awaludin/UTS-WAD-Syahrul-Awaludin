@@ -1,0 +1,5 @@
+{
+  "message": "Token berhasil diperbarui.",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoicWFAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODM5MzExMDcsImV4cCI6MTc4MzkzMjAwNywianRpIjoiYjcxZTExYmYtMmIzNC00Y2ZiLTkyNzAtZjhkYTg1YjkxZGY2In0.nIOlvHEyCyHS5C0AMVJY6ZbEdm_LxJCmD4XdMNtKLeA",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzkzMTEwNywiZXhwIjoxNzg0NTM1OTA3LCJqdGkiOiJlZjUzYTQ4My03OGVkLTQxNGMtOGNmZi02MDYxN2IwYWM5OGYifQ.z0qPzuJTii2uUN3WHGxoKJFqOVmN39upHZ6rviW9N7M"
+}

@@ -1,0 +1,17 @@
+{
+  "data": {
+    "id": 7,
+    "name": "New Project API test",
+    "description": "New test API",
+    "status": "ACTIVE",
+    "ownerId": 3,
+    "createdAt": "2026-07-13T08:47:57.838Z",
+    "updatedAt": "2026-07-13T08:52:09.215Z",
+    "owner": {
+      "id": 3,
+      "name": "Testing QA",
+      "email": "qa@example.com"
+    },
+    "members": []
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "message": "Login berhasil.",
+  "data": {
+    "id": 3,
+    "name": "Testing QA",
+    "email": "qa@example.com",
+    "createdAt": "2026-07-13T08:14:49.542Z",
+    "role": "USER"
+  },
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoicWFAZXhhbXBsZS5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MzkzMDk4MCwiZXhwIjoxNzgzOTMxODgwLCJqdGkiOiIzZjNiNzJjNS1kMGU1LTQxMjYtYWIyMS00ZWMyY2Y5YzFiOGMifQ.MMNMfOxHG2jLASJKHlSda5BWaQ12XLgpLCLV2lC3Qno",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4MzkzMDk4MCwiZXhwIjoxNzg0NTM1NzgwLCJqdGkiOiI1ZTdhZWUwYy1mMmU3LTRhMzctODRlOS0xZjNmZTM0NzBiZTcifQ.toajqpdgHnZyoPzb3va75O9Vz6-_9_R8VPkljcJC82g"
+}
