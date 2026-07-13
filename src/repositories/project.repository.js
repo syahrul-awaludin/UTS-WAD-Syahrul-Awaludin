@@ -3,7 +3,12 @@ const prisma = require('../config/prisma');
 const projectRepository = {
   async findMany({ ownerId, status, sort = 'createdAt', order = 'desc', limit = 10, offset = 0 } = {}) {
     const where = {};
-    if (ownerId) where.ownerId = Number(ownerId);
+    if (ownerId) {
+      where.OR = [
+        { ownerId: Number(ownerId) },
+        { members: { some: { id: Number(ownerId) } } }
+      ];
+    }
     if (status) where.status = status.toUpperCase().replace('-', '_');
 
     const [data, total] = await Promise.all([
@@ -14,6 +19,7 @@ const projectRepository = {
         skip: Number(offset),
         include: {
           owner: { select: { id: true, name: true, email: true } },
+          members: { select: { id: true, name: true, email: true } },
           _count: { select: { tasks: true } },
         },
       }),
@@ -28,6 +34,7 @@ const projectRepository = {
       where: { id: Number(id) },
       include: {
         owner: { select: { id: true, name: true, email: true } },
+        members: { select: { id: true, name: true, email: true } },
         tasks: {
           select: { id: true, title: true, status: true, priority: true },
           orderBy: { createdAt: 'desc' },
@@ -46,6 +53,7 @@ const projectRepository = {
       },
       include: {
         owner: { select: { id: true, name: true, email: true } },
+        members: { select: { id: true, name: true, email: true } },
       },
     });
   },
@@ -60,6 +68,7 @@ const projectRepository = {
         },
         include: {
           owner: { select: { id: true, name: true, email: true } },
+          members: { select: { id: true, name: true, email: true } },
         },
       });
     } catch (e) {
@@ -76,6 +85,14 @@ const projectRepository = {
       if (e.code === 'P2025') return false;
       throw e;
     }
+  },
+
+  async addMember(projectId, userId) {
+    return prisma.project.update({
+      where: { id: Number(projectId) },
+      data: { members: { connect: { id: Number(userId) } } },
+      include: { owner: { select: { id: true, name: true, email: true } } }
+    });
   },
 };
 

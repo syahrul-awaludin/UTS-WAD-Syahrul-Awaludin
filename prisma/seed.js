@@ -3,215 +3,96 @@ const prisma = require('../src/config/prisma');
 const argon2 = require('argon2');
 
 async function main() {
-  console.log('Mulai seeding database...');
+  const hash = async (pwd) => argon2.hash(pwd, { memoryCost: 65536, timeCost: 3, parallelism: 4 });
 
-  // Hapus data dengan urutan FK yang benar
-  await prisma.task.deleteMany();
-  await prisma.refreshToken.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.user.deleteMany();
+  const adminPass = await hash('admin1234');
+  const userPass = await hash('user1234');
 
-  // Reset auto-increment counter agar ID mulai dari 1
-  await prisma.$executeRawUnsafe('ALTER TABLE `tasks` AUTO_INCREMENT = 1');
-  await prisma.$executeRawUnsafe('ALTER TABLE `refresh_tokens` AUTO_INCREMENT = 1');
-  await prisma.$executeRawUnsafe('ALTER TABLE `projects` AUTO_INCREMENT = 1');
-  await prisma.$executeRawUnsafe('ALTER TABLE `users` AUTO_INCREMENT = 1');
+  // Bersihkan data lama (opsional, hati-hati jika production)
+  // await prisma.task.deleteMany();
+  // await prisma.project.deleteMany();
+  // await prisma.user.deleteMany();
 
-  // ─── Hash password (sama untuk semua akun testing) ───────────
-  const hashedPassword = await argon2.hash('password123', {
-    memoryCost: 65536,
-    timeCost: 3,
-    parallelism: 4,
+  // 1. Create Users
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@mail.com' },
+    update: { role: 'ADMIN', password: adminPass },
+    create: { name: 'Admin WAD', email: 'admin@mail.com', password: adminPass, role: 'ADMIN' },
   });
 
-  // ─── Seed: Users ─────────────────────────────────────────────
-  const [budi, siti] = await Promise.all([
-    prisma.user.create({
-      data: {
-        name: 'Budi Santoso',
-        email: 'budi@example.com',
-        password: hashedPassword,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Siti Rahayu',
-        email: 'siti@example.com',
-        password: hashedPassword,
-      },
-    }),
-  ]);
-  console.log(` ✓ 2 user dibuat  →  budi.id=${budi.id}, siti.id=${siti.id}`);
+  const budi = await prisma.user.upsert({
+    where: { email: 'budi@mail.com' },
+    update: { password: userPass },
+    create: { name: 'Budi Santoso', email: 'budi@mail.com', password: userPass, role: 'USER' },
+  });
 
-  // ─── Seed: Projects (model tambahan) ─────────────────────────
-  const [proyek1, proyek2, proyek3, proyek4, proyek5] = await Promise.all([
-    prisma.project.create({
-      data: {
-        name: 'Proyek Akhir WAD',
-        description: 'Capstone project mata kuliah Web Advance Development — membangun REST API dengan Express + Prisma.',
-        status: 'ACTIVE',
-        ownerId: budi.id,
-      },
-    }),
-    prisma.project.create({
-      data: {
-        name: 'Aplikasi Mobile Kasir',
-        description: 'Aplikasi kasir sederhana berbasis React Native untuk UMKM lokal.',
-        status: 'ACTIVE',
-        ownerId: siti.id,
-      },
-    }),
-    prisma.project.create({
-      data: {
-        name: 'Riset Machine Learning',
-        description: 'Penelitian klasifikasi teks berita menggunakan model Naive Bayes dan SVM.',
-        status: 'COMPLETED',
-        ownerId: budi.id,
-      },
-    }),
-    prisma.project.create({
-      data: {
-        name: 'Dashboard Internal HRD',
-        description: 'Pengembangan dashboard manajemen karyawan untuk kebutuhan internal perusahaan.',
-        status: 'COMPLETED',
-        ownerId: siti.id,
-      },
-    }),
-    prisma.project.create({
-      data: {
-        name: 'Website Portofolio Lama',
-        description: 'Portofolio versi lama yang sudah tidak aktif — diarsipkan untuk referensi.',
-        status: 'ARCHIVED',
-        ownerId: budi.id,
-      },
-    }),
-  ]);
-  console.log(` ✓ 5 project dibuat  →  [ACTIVE] proyek1.id=${proyek1.id} (Budi), proyek2.id=${proyek2.id} (Siti) | [COMPLETED] proyek3, proyek4 | [ARCHIVED] proyek5`);
+  const siti = await prisma.user.upsert({
+    where: { email: 'siti@mail.com' },
+    update: { password: userPass },
+    create: { name: 'Siti Aminah', email: 'siti@mail.com', password: userPass, role: 'USER' },
+  });
 
-  // ─── Seed: Tasks ─────────────────────────────────────────────
-  await Promise.all([
-    // Tugas Budi — terkait Proyek Akhir WAD
-    prisma.task.create({
-      data: {
-        title: 'Setup Express server & folder structure',
-        description: 'Inisialisasi project Express, konfigurasi middleware, dan struktur folder MVC.',
-        status: 'DONE',
-        priority: 'HIGH',
-        dueDate: new Date('2026-06-01'),
-        userId: budi.id,
-        projectId: proyek1.id,
-      },
-    }),
-    prisma.task.create({
-      data: {
-        title: 'Setup Prisma ORM & koneksi database',
-        description: 'Install Prisma, buat schema awal, dan jalankan migrasi pertama ke MySQL.',
-        status: 'DONE',
-        priority: 'HIGH',
-        dueDate: new Date('2026-06-05'),
-        userId: budi.id,
-        projectId: proyek1.id,
-      },
-    }),
-    prisma.task.create({
-      data: {
-        title: 'Implementasi JWT Authentication',
-        description: 'Buat endpoint login, register, refresh token, logout, dan middleware autentikasi.',
-        status: 'IN_PROGRESS',
-        priority: 'HIGH',
-        dueDate: new Date('2026-06-20'),
-        userId: budi.id,
-        projectId: proyek1.id,
-      },
-    }),
-    prisma.task.create({
-      data: {
-        title: 'Dokumentasi Swagger API',
-        description: 'Tambahkan anotasi swagger-jsdoc ke semua endpoint dan pastikan UI berjalan di /api-docs.',
-        status: 'TODO',
-        priority: 'MEDIUM',
-        dueDate: new Date('2026-06-25'),
-        userId: budi.id,
-        projectId: proyek1.id,
-      },
-    }),
-    // Tugas Budi — tanpa project (personal task)
-    prisma.task.create({
-      data: {
-        title: 'Review materi Prisma Relations',
-        description: 'Pelajari one-to-many dan many-to-many relation pada Prisma ORM.',
-        status: 'TODO',
-        priority: 'LOW',
-        dueDate: new Date('2026-06-30'),
-        userId: budi.id,
-        projectId: null,
-      },
-    }),
-    // Tugas Siti — terkait Aplikasi Mobile Kasir
-    prisma.task.create({
-      data: {
-        title: 'Desain UI wireframe aplikasi kasir',
-        description: 'Buat wireframe halaman utama, transaksi, dan laporan menggunakan Figma.',
-        status: 'DONE',
-        priority: 'HIGH',
-        dueDate: new Date('2026-06-08'),
-        userId: siti.id,
-        projectId: proyek2.id,
-      },
-    }),
-    prisma.task.create({
-      data: {
-        title: 'Setup React Native & navigasi',
-        description: 'Inisialisasi project React Native, install React Navigation, dan konfigurasi tab/stack navigator.',
-        status: 'IN_PROGRESS',
-        priority: 'HIGH',
-        dueDate: new Date('2026-06-22'),
-        userId: siti.id,
-        projectId: proyek2.id,
-      },
-    }),
-    prisma.task.create({
-      data: {
-        title: 'Integrasi REST API ke mobile app',
-        description: 'Hubungkan aplikasi mobile ke backend REST API menggunakan Axios dan kelola state dengan Zustand.',
-        status: 'TODO',
-        priority: 'MEDIUM',
-        dueDate: new Date('2026-06-28'),
-        userId: siti.id,
-        projectId: proyek2.id,
-      },
-    }),
-    // Tugas Siti — tanpa project (personal task)
-    prisma.task.create({
-      data: {
-        title: 'Meeting presentasi progress sprint',
-        description: 'Siapkan slide demo fitur yang sudah selesai untuk presentasi kepada tim dan mentor.',
-        status: 'TODO',
-        priority: 'MEDIUM',
-        dueDate: new Date('2026-06-19'),
-        userId: siti.id,
-        projectId: null,
-      },
-    }),
-  ]);
-  console.log(' ✓ 9 task dibuat (4 Budi + 5 Siti, dengan description & dueDate)');
+  const andi = await prisma.user.upsert({
+    where: { email: 'andi@mail.com' },
+    update: { password: userPass },
+    create: { name: 'Andi Wijaya', email: 'andi@mail.com', password: userPass, role: 'USER' },
+  });
 
-  console.log('');
-  console.log('╔══════════════════════════════════════════════╗');
-  console.log('║           AKUN TESTING TERSEDIA              ║');
-  console.log('╠══════════════════════════════════════════════╣');
-  console.log(`║  Budi  → id=${String(budi.id).padEnd(2)} | budi@example.com      ║`);
-  console.log(`║  Siti  → id=${String(siti.id).padEnd(2)} | siti@example.com      ║`);
-  console.log('║  Password (semua): password123               ║');
-  console.log('║  Gunakan POST /api/v1/auth/login             ║');
-  console.log('╚══════════════════════════════════════════════╝');
-  console.log('');
-  console.log('Seeding selesai!');
+  console.log('✅ Users seeded');
+
+  // 2. Create Projects & Assign Members
+  const project1 = await prisma.project.create({
+    data: {
+      name: 'Website E-Commerce UAS',
+      description: 'Proyek akhir pengembangan website E-Commerce dengan React dan Node.js',
+      status: 'ACTIVE',
+      ownerId: budi.id,
+      members: {
+        connect: [{ id: siti.id }, { id: andi.id }]
+      }
+    }
+  });
+
+  const project2 = await prisma.project.create({
+    data: {
+      name: 'Aplikasi Mobile Point of Sales',
+      description: 'Aplikasi kasir untuk warung kopi',
+      status: 'ACTIVE',
+      ownerId: siti.id,
+      members: {
+        connect: [{ id: budi.id }]
+      }
+    }
+  });
+
+  console.log('✅ Projects seeded');
+
+  // 3. Create Tasks
+  await prisma.task.createMany({
+    data: [
+      // Project 1 Tasks
+      { title: 'Desain UI/UX Homepage', description: 'Buat desain di Figma', status: 'DONE', priority: 'HIGH', userId: siti.id, projectId: project1.id },
+      { title: 'Setup Database MySQL', description: 'Desain skema dan deploy ke server', status: 'IN_PROGRESS', priority: 'HIGH', userId: andi.id, projectId: project1.id },
+      { title: 'Integrasi Payment Gateway', description: 'Gunakan Midtrans untuk pembayaran', status: 'TODO', priority: 'MEDIUM', userId: budi.id, projectId: project1.id },
+      { title: 'Testing Checkout Flow', description: 'Pastikan tidak ada bug saat checkout', status: 'TODO', priority: 'LOW', userId: siti.id, projectId: project1.id },
+
+      // Project 2 Tasks
+      { title: 'Desain Struktur Database', description: 'Buat ERD dan normalisasi', status: 'IN_PROGRESS', priority: 'HIGH', userId: budi.id, projectId: project2.id },
+      { title: 'Membuat Endpoint API', description: 'API untuk produk dan transaksi', status: 'TODO', priority: 'HIGH', userId: siti.id, projectId: project2.id },
+      { title: 'Implementasi Auth Screen', description: 'Login & Register di Flutter', status: 'TODO', priority: 'MEDIUM', userId: budi.id, projectId: project2.id },
+      
+      // Personal Tasks (No Project)
+      { title: 'Beli Kopi', description: 'Untuk begadang ngerjain UAS', status: 'TODO', priority: 'HIGH', userId: budi.id },
+      { title: 'Revisi Proposal', description: 'Perbaiki bab 3', status: 'IN_PROGRESS', priority: 'MEDIUM', userId: siti.id },
+    ]
+  });
+
+  console.log('✅ Tasks seeded');
 }
 
 main()
   .catch((e) => {
-    console.error('Error seeding:', e);
+    console.error(e);
     process.exit(1);
   })
   .finally(async () => {

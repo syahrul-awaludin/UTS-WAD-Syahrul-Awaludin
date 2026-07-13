@@ -45,7 +45,7 @@ const authService = {
 
     const user = await prisma.user.create({
       data: { name, email, password: hashedPassword },
-      select: { id: true, name: true, email: true, createdAt: true },
+      select: { id: true, name: true, email: true, createdAt: true, role: true },
     });
 
     return user;
@@ -68,7 +68,7 @@ const authService = {
       throw err;
     }
 
-    const accessToken = signAccessToken({ userId: user.id, email: user.email });
+    const accessToken = signAccessToken({ userId: user.id, email: user.email, role: user.role });
     const refreshToken = signRefreshToken({ userId: user.id });
 
     await refreshTokenRepo.create({
@@ -78,7 +78,7 @@ const authService = {
     });
 
     return {
-      user: { id: user.id, name: user.name, email: user.email },
+      user: { id: user.id, name: user.name, email: user.email, createdAt: user.createdAt, role: user.role },
       accessToken,
       refreshToken,
     };
@@ -112,7 +112,7 @@ const authService = {
 
     await refreshTokenRepo.revoke(tokenString);
 
-    const newAccessToken = signAccessToken({ userId: storedToken.userId, email: storedToken.user.email });
+    const newAccessToken = signAccessToken({ userId: storedToken.userId, email: storedToken.user.email, role: storedToken.user.role });
     const newRefreshToken = signRefreshToken({ userId: storedToken.userId });
 
     await refreshTokenRepo.create({

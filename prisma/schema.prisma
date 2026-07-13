@@ -12,12 +12,14 @@ model User {
   name          String   @db.VarChar(100)
   email         String   @unique @db.VarChar(255)
   password      String   @db.VarChar(255)
+  role          Role     @default(USER)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  tasks         Task[]
-  refreshTokens RefreshToken[]
-  projects      Project[]
+  tasks            Task[]
+  refreshTokens    RefreshToken[]
+  projects         Project[]
+  memberOfProjects Project[]      @relation("ProjectMembers")
 
   @@map("users")
 }
@@ -75,6 +77,7 @@ model Project {
   updatedAt   DateTime @updatedAt
 
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members     User[]   @relation("ProjectMembers")
   tasks       Task[]
 
   @@index([ownerId])
@@ -83,6 +86,11 @@ model Project {
 }
 
 // ─── Enumerasi ────────────────────────────────────────────
+enum Role {
+  USER
+  ADMIN
+}
+
 enum Status {
   TODO
   IN_PROGRESS

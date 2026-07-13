@@ -136,5 +136,6 @@ router.get('/:id', ctrl.getProject);
 router.put('/:id', validate(replaceProjectSchema, 'body'), ctrl.replaceProject);
 router.patch('/:id', validate(updateProjectSchema, 'body'), ctrl.updateProject);
 router.delete('/:id', ctrl.deleteProject);
+router.post('/:id/members', ctrl.addMember);
 
 module.exports = router;

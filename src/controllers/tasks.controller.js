@@ -1,10 +1,12 @@
 const taskRepo = require('../repositories/task.repository');
+const { getIo } = require('../config/socket');
 
 const listTasks = async (req, res, next) => {
   try {
     const { status, priority, projectId, sort, order, limit, offset } = req.query;
+    const userId = req.user.role === 'ADMIN' ? undefined : req.user.userId;
     const { data, total } = await taskRepo.findMany({ 
-      userId: req.user.userId, // Filter berdasarkan user yang login
+      userId, // Filter berdasarkan user yang login, kecuali Admin
       status, 
       priority,
       projectId,
@@ -38,6 +40,15 @@ const createTask = async (req, res, next) => {
       ...req.body, 
       userId: req.user.userId 
     });
+
+    try { 
+      let emitObj = getIo().to(`user:${task.userId}`).to('global_admin');
+      if (task.projectId) {
+        emitObj = emitObj.to(`project:${task.projectId}`);
+      }
+      emitObj.emit('task:created', { task });
+    } catch (e) { console.error('Socket error:', e); }
+
     res.status(201).set('Location', `/api/v1/tasks/${task.id}`).json({ data: task });
   } catch (err) { next(err); }
 };
@@ -45,7 +56,9 @@ const createTask = async (req, res, next) => {
 const getTask = async (req, res, next) => {
   try {
     const task = await taskRepo.findById(req.params.id);
-    if (!task || task.userId !== req.user.userId) {
+    if (!task) return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
+    const hasAccess = req.user.role === 'ADMIN' || task.userId === req.user.userId || task.project?.ownerId === req.user.userId || task.project?.members?.some(m => m.id === req.user.userId);
+    if (!hasAccess) {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
     }
     res.status(200).json({ data: task });
@@ -55,11 +68,22 @@ const getTask = async (req, res, next) => {
 const replaceTask = async (req, res, next) => {
   try {
     const existing = await taskRepo.findById(req.params.id);
-    if (!existing || existing.userId !== req.user.userId) {
+    if (!existing) return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
+    const hasAccess = req.user.role === 'ADMIN' || existing.userId === req.user.userId || existing.project?.ownerId === req.user.userId || existing.project?.members?.some(m => m.id === req.user.userId);
+    if (!hasAccess) {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
     }
 
     const task = await taskRepo.update(req.params.id, req.body);
+
+    try { 
+      let emitObj = getIo().to(`user:${task.userId}`).to('global_admin');
+      if (task.projectId) {
+        emitObj = emitObj.to(`project:${task.projectId}`);
+      }
+      emitObj.emit('task:updated', { task });
+    } catch (e) { console.error('Socket error:', e); }
+
     res.status(200).json({ data: task });
   } catch (err) { next(err); }
 };
@@ -67,11 +91,22 @@ const replaceTask = async (req, res, next) => {
 const updateTask = async (req, res, next) => {
   try {
     const existing = await taskRepo.findById(req.params.id);
-    if (!existing || existing.userId !== req.user.userId) {
+    if (!existing) return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
+    const hasAccess = req.user.role === 'ADMIN' || existing.userId === req.user.userId || existing.project?.ownerId === req.user.userId || existing.project?.members?.some(m => m.id === req.user.userId);
+    if (!hasAccess) {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
     }
 
     const task = await taskRepo.update(req.params.id, req.body);
+
+    try { 
+      let emitObj = getIo().to(`user:${task.userId}`).to('global_admin');
+      if (task.projectId) {
+        emitObj = emitObj.to(`project:${task.projectId}`);
+      }
+      emitObj.emit('task:updated', { task });
+    } catch (e) { console.error('Socket error:', e); }
+
     res.status(200).json({ data: task });
   } catch (err) { next(err); }
 };
@@ -79,7 +114,9 @@ const updateTask = async (req, res, next) => {
 const deleteTask = async (req, res, next) => {
   try {
     const existing = await taskRepo.findById(req.params.id);
-    if (!existing || existing.userId !== req.user.userId) {
+    if (!existing) return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
+    const hasAccess = req.user.role === 'ADMIN' || existing.userId === req.user.userId || existing.project?.ownerId === req.user.userId || existing.project?.members?.some(m => m.id === req.user.userId);
+    if (!hasAccess) {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
     }
 
@@ -87,6 +124,15 @@ const deleteTask = async (req, res, next) => {
     if (!ok) {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: `Task ID ${req.params.id} tidak ditemukan.` } });
     }
+
+    try { 
+      let emitObj = getIo().to(`user:${existing.userId}`).to('global_admin');
+      if (existing.projectId) {
+        emitObj = emitObj.to(`project:${existing.projectId}`);
+      }
+      emitObj.emit('task:deleted', { taskId: req.params.id });
+    } catch (e) { console.error('Socket error:', e); }
+
     res.status(204).send();
   } catch (err) { next(err); }
 };
