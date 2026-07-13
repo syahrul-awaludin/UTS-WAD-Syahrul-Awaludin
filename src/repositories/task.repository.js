@@ -1,7 +1,7 @@
 const prisma = require('../config/prisma');
 
 const taskRepository = {
-  async findMany({ userId, status, priority, projectId, sort = 'createdAt', order = 'desc', limit = 10, offset = 0 } = {}) {
+  async findMany({ userId, status, priority, projectId, search, sort = 'createdAt', order = 'desc', limit = 10, offset = 0 } = {}) {
     const where = {};
     if (userId) {
       where.OR = [
@@ -13,6 +13,7 @@ const taskRepository = {
     if (status) where.status = status.toUpperCase().replace('-', '_');
     if (priority) where.priority = priority.toUpperCase();
     if (projectId !== undefined && projectId !== null && projectId !== '') where.projectId = Number(projectId);
+    if (search) where.title = { contains: search };
 
     const [data, total] = await Promise.all([
       prisma.task.findMany({

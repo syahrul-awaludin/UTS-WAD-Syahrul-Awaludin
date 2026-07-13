@@ -11,12 +11,13 @@ class ProjectError extends Error {
 }
 
 const listProjects = async (query, user) => {
-  const { status, sort, order, limit, offset } = query;
+  const { status, search, sort, order, limit, offset } = query;
   const ownerId = user.role === 'ADMIN' ? undefined : user.userId;
   
   const { data, total } = await projectRepo.findMany({ 
     ownerId, 
     status, 
+    search,
     sort, 
     order, 
     limit, 

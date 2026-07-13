@@ -1,7 +1,7 @@
 const prisma = require('../config/prisma');
 
 const projectRepository = {
-  async findMany({ ownerId, status, sort = 'createdAt', order = 'desc', limit = 10, offset = 0 } = {}) {
+  async findMany({ ownerId, status, search, sort = 'createdAt', order = 'desc', limit = 10, offset = 0 } = {}) {
     const where = {};
     if (ownerId) {
       where.OR = [
@@ -10,6 +10,7 @@ const projectRepository = {
       ];
     }
     if (status) where.status = status.toUpperCase().replace('-', '_');
+    if (search) where.name = { contains: search };
 
     const [data, total] = await Promise.all([
       prisma.project.findMany({

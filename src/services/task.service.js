@@ -10,7 +10,7 @@ class TaskError extends Error {
 }
 
 const listTasks = async (query, user) => {
-  const { status, priority, projectId, sort, order, limit, offset } = query;
+  const { status, priority, projectId, search, sort, order, limit, offset } = query;
   const userId = user.role === 'ADMIN' ? undefined : user.userId;
   
   const { data, total } = await taskRepo.findMany({ 
@@ -18,6 +18,7 @@ const listTasks = async (query, user) => {
     status, 
     priority,
     projectId,
+    search,
     sort, 
     order, 
     limit, 
