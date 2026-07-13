@@ -6,6 +6,7 @@ const taskRepository = {
     if (userId) {
       where.OR = [
         { userId: Number(userId) },
+        { project: { ownerId: Number(userId) } },
         { project: { members: { some: { id: Number(userId) } } } }
       ];
     }
@@ -35,7 +36,15 @@ const taskRepository = {
       where: { id: Number(id) },
       include: {
         user: { select: { id: true, name: true, email: true } },
-        project: { select: { id: true, name: true, status: true } },
+        project: { 
+          select: { 
+            id: true, 
+            name: true, 
+            status: true,
+            ownerId: true,
+            members: { select: { id: true } } 
+          } 
+        },
       },
     });
   },
