@@ -10,7 +10,10 @@ const options = {
       version: config.version,
       description: 'REST API untuk capstone project Web Advanced Development. Termasuk model tambahan Project oleh Syahrul Awaludin.',
     },
-    servers: [{ url: `http://localhost:${config.port}/api/v1`, description: 'Local Dev' }],
+    servers: [
+      { url: `https://uas-wad.syahrulawaludin.my.id/api/v1`, description: 'Production VPS' },
+      { url: `http://localhost:${config.port}/api/v1`, description: 'Local Dev' }
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {
