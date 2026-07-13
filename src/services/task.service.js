@@ -53,7 +53,7 @@ const createTask = async (body, user) => {
     if (task.projectId) {
       emitObj = emitObj.to(`project:${task.projectId}`);
     }
-    emitObj.emit('task:created', { task });
+    emitObj.emit('task:created', { task, senderId: user.userId });
   } catch (e) { console.error('Socket error:', e); }
 
   return task;
@@ -88,7 +88,7 @@ const replaceTask = async (id, body, user) => {
     if (task.projectId) {
       emitObj = emitObj.to(`project:${task.projectId}`);
     }
-    emitObj.emit('task:updated', { task });
+    emitObj.emit('task:updated', { task, senderId: user.userId });
   } catch (e) { console.error('Socket error:', e); }
 
   return task;
@@ -111,7 +111,7 @@ const updateTask = async (id, body, user) => {
     if (task.projectId) {
       emitObj = emitObj.to(`project:${task.projectId}`);
     }
-    emitObj.emit('task:updated', { task });
+    emitObj.emit('task:updated', { task, senderId: user.userId });
   } catch (e) { console.error('Socket error:', e); }
 
   return task;
@@ -137,7 +137,7 @@ const deleteTask = async (id, user) => {
     if (existing.projectId) {
       emitObj = emitObj.to(`project:${existing.projectId}`);
     }
-    emitObj.emit('task:deleted', { taskId: id });
+    emitObj.emit('task:deleted', { taskId: id, senderId: user.userId });
   } catch (e) { console.error('Socket error:', e); }
 
   return true;

@@ -48,7 +48,7 @@ const createProject = async (body, user) => {
   });
   
   try { 
-    getIo().to(`user:${project.ownerId}`).to('global_admin').emit('project:created', { project }); 
+    getIo().to(`user:${project.ownerId}`).to('global_admin').emit('project:created', { project, senderId: user.userId }); 
   } catch(e) { console.error('Socket error:', e); }
   
   return project;
@@ -75,7 +75,7 @@ const replaceProject = async (id, body, user) => {
   const project = await projectRepo.update(id, body);
   
   try { 
-    getIo().to(`user:${project.ownerId}`).to('global_admin').emit('project:updated', { project }); 
+    getIo().to(`user:${project.ownerId}`).to('global_admin').emit('project:updated', { project, senderId: user.userId }); 
   } catch(e) { console.error('Socket error:', e); }
   
   return project;
@@ -91,7 +91,7 @@ const updateProject = async (id, body, user) => {
   const project = await projectRepo.update(id, body);
   
   try { 
-    getIo().to(`user:${project.ownerId}`).to('global_admin').emit('project:updated', { project }); 
+    getIo().to(`user:${project.ownerId}`).to('global_admin').emit('project:updated', { project, senderId: user.userId }); 
   } catch(e) { console.error('Socket error:', e); }
   
   return project;
@@ -110,7 +110,7 @@ const deleteProject = async (id, user) => {
   }
   
   try { 
-    getIo().to(`user:${existing.ownerId}`).to('global_admin').emit('project:deleted', { projectId: id }); 
+    getIo().to(`user:${existing.ownerId}`).to('global_admin').emit('project:deleted', { projectId: id, senderId: user.userId }); 
   } catch(e) { console.error('Socket error:', e); }
   
   return true;
@@ -135,7 +135,7 @@ const addMember = async (id, email, user) => {
   const updatedProject = await projectRepo.addMember(id, userToAdd.id);
   
   try { 
-    getIo().to(`user:${userToAdd.id}`).emit('project:created', { project: updatedProject }); 
+    getIo().to(`user:${userToAdd.id}`).emit('project:created', { project: updatedProject, senderId: user.userId }); 
   } catch(e) { console.error('Socket error:', e); }
 
   return updatedProject;
