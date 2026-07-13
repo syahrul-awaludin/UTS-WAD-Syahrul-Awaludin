@@ -1,5 +1,7 @@
 # WAD Capstone API - Backend
 
+> 📚 **Live API Documentation (Swagger):** [https://uas-wad.syahrulawaludin.my.id/api/docs](https://uas-wad.syahrulawaludin.my.id/api/docs)
+
 Repositori ini berisi *source code* untuk Backend aplikasi **WAD Task Manager**, yang dikembangkan untuk memenuhi tugas akhir (UAS) mata kuliah Web Application Development.
 
 ## 🚀 Teknologi yang Digunakan
