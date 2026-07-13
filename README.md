@@ -175,3 +175,21 @@ flowchart TD
 2. **Nginx**: Berfungsi sebagai tameng terdepan. Jika URL berupa `/` (halaman web biasa), ia melempar trafiknya ke proses PM2 Frontend. Jika URI mengandung awalan `/api/` atau `/socket.io/`, ia melempar trafik ke PM2 Backend.
 3. **PM2**: Memastikan kedua aplikasi (BE & FE) berjalan tanpa henti (sebagai _daemon_ atau servis _background_). Jika aplikasi _crash_, PM2 akan secara otomatis menghidupkannya kembali.
 4. **MySQL Database**: Berjalan di belakang layar secara aman (`localhost`). Tidak bisa diakses oleh dunia luar secara langsung melainkan hanya via Backend.
+
+---
+
+## 📸 Dokumentasi Server (Screenshots)
+
+Berikut adalah beberapa tangkapan layar (screenshot) dari terminal VPS yang membuktikan proses *deployment* dan status aplikasi berjalan 100% *online* menggunakan PM2:
+
+### 1. Daftar Proses PM2 Keseluruhan
+Menampilkan daftar proses `wad-uas-be` dan `wad-uas-fe` yang sedang berjalan.
+![PM2 List](./Screenshot/Check_Pm2_list.png)
+
+### 2. Status PM2 Frontend
+Menampilkan detail status memori dan log untuk *Frontend*.
+![PM2 Frontend](./Screenshot/Pm2_Logs_wad-uas-frontend.png)
+
+### 3. Status PM2 Backend
+Menampilkan detail status memori dan log untuk *Backend*.
+![PM2 Backend](./Screenshot/Pm2_Logs_wad-uas-backend.png)
