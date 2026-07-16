@@ -7,7 +7,8 @@ const adapter = new PrismaMariaDb({
   port: dbUrl.port ? parseInt(dbUrl.port) : 3306,
   user: dbUrl.username,
   password: dbUrl.password,
-  database: dbUrl.pathname.replace('/', '')
+  database: dbUrl.pathname.replace('/', ''),
+  allowPublicKeyRetrieval: true
 });
 
 // Singleton: hanya satu instance di seluruh aplikasi
